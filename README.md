@@ -1,21 +1,25 @@
-# InternVL3 NPU
+# SmolVLM2-256M NPU
 ![Alt text](https://github.com/user-attachments/assets/6d297a34-c516-4cb1-be4a-bca471d40fa6)
 <br><br>**User**:\<image\>Describe the image.<br><br>
-**Answer**: The image depicts an astronaut in a white space suit lounging on the moon's surface with a green bottle of soda in hand. The background features Earth from space and part of a lunar module, suggesting a surreal scene. The setting is dramatic, with the vastness of space surrounding the astronaut and the Moon itself.
+**Answer**: The image depicts a scene from space, specifically looking at the moon's surface. The moon is in the process of being tidied up and has been cleaned to remove any debris or stains. There are two large white objects on the right side of the image, which could be astronauts or other crew members. They appear to be working together to clean the area around the moon's surface.
+
+The background shows a view of Earth from space, showing the planet with its atmosphere and oceans. The sky is dark, indicating that it might be either early morning or late afternoon. There are no visible clouds in the sky, which suggests that the sun is not at its peak position. The image also includes some text, but it's unclear what it says.
+
+Overall, this image captures a moment of cleanliness and organization on the moon, with both humans and astronauts working together to clean up the area around the moon's surface.
 
 ------------
 
-## InternVL3 VLM for RK3588 NPU (Rock 5, Orange Pi 5). <br/>
+## SmolVLM2-256M VLM for RK3588 NPU (Rock 5, Orange Pi 5). <br/>
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)<br/><br/>
-Paper: [InternVL3: Exploring Advanced Training and Test-Time Recipes for Open-Source Multimodal Models](https://arxiv.org/pdf/2504.10479)<br/><br/>
-Hugging face: https://huggingface.co/OpenGVLab/InternVL3-78B
+Paper: https://huggingface.co/blog/smolvlm2
+Hugging face: https://huggingface.co/blog/smolvlm2
 
 ------------
 
 ## Introduction
 
-LLMs (Large Language Models) are neural networks trained on large text datasets to understand and generate language.<br>
-VLMs (Vision-Language Models) add a visual encoder so the model can process images and text together.<br> 
+LLMs (Large Language Models) are neural networks trained on extensive text datasets to comprehend and produce language.<br>
+VLMs (Vision-Language Models) incorporate a visual encoder, allowing the model to process images and text simultaneously.<br> 
 A combined VLM+LLM system is often referred to as a multimodal model.
 
 These models can be large—hundreds of millions to billions of parameters—which impacts accuracy, memory use, and runtime speed.<br>
@@ -24,7 +28,6 @@ Because of this, models typically need to be quantised or simplified to fit.
 
 Performance is usually expressed in tokens (words) per second.<br>
 Once converted to RKNN, parts of the model can run on the NPU, improving speed.<br>
-Despite these limits, models like InternVL3 run well on the RK3588 because the NPU efficiently accelerates the heavy math, and the vision encoder can be optimised. This makes advanced multimodal AI feasible on small, power-efficient devices.
 
 ------------
 
@@ -33,17 +36,19 @@ Despite these limits, models like InternVL3 run well on the RK3588 because the N
 All models, with C++ examples, can be found on the Q-engineering GitHub.<br><br>
 All LLM models are quantized to **w8a8**, while the VLM vision encoders use **fp16**.<br>
 
-| model         | RAM (GB) | llm cold sec<sup>1</sup> | llm warm sec<sup>2</sup> | vlm cold sec<sup>1</sup> | vlm warm sec<sup>2</sup> | Resolution | Tokens/s |
+| model         | RAM (GB)<sup>1</sup> | llm cold sec<sup>2</sup> | llm warm sec<sup>3</sup> | vlm cold sec<sup>2</sup> | vlm warm sec<sup>3</sup> | Resolution | Tokens/s |
 | --------------| :--: | :-----: | :-----: | :--------: | :-----: | :--------:  | :--------: |
-| Qwen2         | | 29.1 |   2.5 | 17.1  | 1.7 | 392 x 392 | 12.5 |
-| InternVL3-1B  | 1.3 |  6.8 |   1.1 | 7.8    | 0.75 | 448 x 448 | 30 |
-| SmolVLM2-2.2B | | 21.2 |   2.6 | 10.5   | 0.9  | 392 x 392 | 11 |
-| SmolVLM2-500M | |  4.8 |   0.7 | 2.5    | 0.25 | 392 x 392 | 31 |
-| SmolVLM2-256M | |  1.1 |   0.4 | 2.5    | 0.25 | 392 x 392 | 54 |
+| [Qwen2](https://github.com/Qengineering/Qwen2-NPU)         | 3.3 | 29.1 |   2.5 | 17.1  | 1.7 | 392 x 392 | 12.5 |
+| [InternVL3-1B](https://github.com/Qengineering/InternVL3-NPU)  | 1.3 |  6.8 |   1.1 | 7.8    | 0.75 | 448 x 448 | 30 |
+| [SmolVLM2-2.2B](https://github.com/Qengineering/SmolVLM2-2B-NPU) | 3.4 | 21.2 |   2.6 | 10.5   | 0.9  | 384 x 384 | 11 |
+| [SmolVLM2-500M](https://github.com/Qengineering/SmolVLM2-500M-NPU) | 0.8 |  4.8 |   0.7 | 2.5    | 0.25 | 384 x 384 | 31 |
+| [SmolVLM2-256M](https://github.com/Qengineering/SmolVLM2-256M-NPU) | 0.5 |  1.1 |   0.4 | 2.5    | 0.25 | 384 x 384 | 54 |
 
-<sup>1</sup> When an llm/vlm model is loaded for the first time from your disk to RAM or NPU, it is called a cold start.<br>
-The duration depends on your OS, I/O transfer rate, and memory mapping.<br><br> 
-<sup>2</sup> Subsequent loading (warm start) takes advantage of the already mapped data in RAM. Mostly, only a few pointers need to be restored.<br>
+<sup>1</sup> The total used memory; LLM plus the VLM. <br>
+<sup>2</sup> When an llm/vlm model is loaded for the first time from your disk to RAM or NPU, it is called a cold start.<br>
+The duration depends on your OS, I/O transfer rate, and memory mapping.<br> 
+<sup>3</sup> Subsequent loading (warm start) takes advantage of the already mapped data in RAM. Mostly, only a few pointers need to be restored.<br><br>
+<img width="600" height="450" alt="Figure_1" src="https://github.com/user-attachments/assets/1c25935a-742d-4930-854a-230ecb6543b7" /><br>
 
 ------------
 
@@ -71,24 +76,23 @@ $ sudo apt-get install lib-opencv-dev
 
 ## Installing the app.
 ```
-$ git clone https://github.com/Qengineering/InternVL3-NPU.git
+$ git clone https://github.com/Qengineering/SmolVLM2-256M-NPU.git
 ```
 
 #### RKLLM, RKNN
-To run InternVL3, you need to have the **rkllm-runtime** library version **1.2.2** (or higher) installed, as well as the **rknpu driver** version **0.9.8**.<br>
+To run SmolVLM2-500M, you need to have the **rkllm-runtime** library version **1.2.2** (or higher) installed, as well as the **rknpu driver** version **0.9.8**.<br>
 If you don't have these on your machine, or if you have a lower version, you need to install them.<br>
 We have provided the correct versions in the repo.<br>
 ```bash
-$ cd ./InternVL3-NPU/aarch64/library
+$ cd ./SmolVLM2-256M-NPU/aarch64/library
 $ sudo cp ./*.so /usr/local/lib
-$ cd ./InternVL3-NPU/aarch64/include
+$ cd ./SmolVLM2-256M-NPU/aarch64/include
 $ sudo cp ./*.h /usr/local/include
 ```
 ### Download the LLM and VLM model.
 The next step is downloading the models.<br>
-This time, we used the original model supplied by Rockchips [rkllm_model_zoo](https://console.box.lenovo.com/l/l0tXb8) (44 GB!), fetch code: rkllm.<br><br>
-Better to download only the two needed files (1.5 GB) from our Sync.com server:<br>
-[internvl3-1b_w8a8_rk3588.rkllm](https://ln5.sync.com/dl/2ac529d30#49g27fih-qe8mjmu9-prmas7px-uuyua5te) and [internvl3-1b_vision_fp16_rk3588.rknn](https://ln5.sync.com/dl/b565d2360#wmbmdbum-tk36pehc-5t4irskd-7gb6kfti)<br>
+Download the two files (700 MB) from our Sync.com server:<br>
+[smolvlm2-2.2b-instruct_w8a8_rk3588.rkllm](https://ln5.sync.com/dl/2ac529d30#49g27fih-qe8mjmu9-prmas7px-uuyua5te) and [smolvlm2-2.2b_vision_fp16_rk3588.rknn](https://ln5.sync.com/dl/b565d2360#wmbmdbum-tk36pehc-5t4irskd-7gb6kfti)<br>
 Copy both to your `./model` folder.
 
 ### Building the app.
@@ -127,14 +131,14 @@ This specifies the maximum total number of tokens the model can process in one g
 
 A typical command line can be:
 ```bash
-VLM_NPU ./Moon.jpg ./models/internvl3-1b_vision_fp16_rk3588.rknn ./models/internvl3-1b_w8a8_rk3588.rkllm 2048 4096
+VLM_NPU ./Moon.jpg ./models/SmolVLM2-2B-1b_vision_fp16_rk3588.rknn ./models/SmolVLM2-2B-1b_w8a8_rk3588.rkllm 2048 4096
 ```
 The NewTokens (2048) and ContextLength (4096) are optional and can be omitted.
 ### Using the app.
 Using the application is simple. Once you provide the image and the models, you can ask everything you want.<br>
-Remember, we are on a bare Rock5C, so don't expect the same quality answers as ChatGPT can provide.<br>
-On the other hand, when you see the examples below, the app performs amazingly well.<br><br>
-If you want to talk about the picture, you need to include the token `<image>` in your prompt once.<br>
+Remember, we are on a bare Rock5C with a tiny model, so don't expect the same quality answers as ChatGPT can provide.<br>
+If you want more realistic and sensible output, you'd better use a larger model like [InternVL3](https://github.com/Qengineering/InternVL3-NPU) or [Qwen](https://github.com/Qengineering/Qwen2-NPU).<br>
+If you like the response to include a discussion of the picture, include the `<image>` token once in your prompt.<br>
 The app remembers the dialogue until you give the token `<clear>`.<br>
 With `<exit>`, you leave the application.
 ### C++ code.  
@@ -186,67 +190,58 @@ std::cout << "\nLLM Answer: " << output_str << std::endl;
 ## VLM examples.
 | Image         | Dialog |
 | --------------| --  |
-| ![Singapore_S](https://github.com/user-attachments/assets/e742059a-3bdb-41be-9647-e7767da12ce6) |**User**: <image>Which city is this?<br>**Answer**: This image shows Singapore's iconic skyline at sunset. The distinctive Marina Bay Sands and the ArtScience Museum are prominent landmarks in Singapore. | 
-| ![ChineseWall_S](https://github.com/user-attachments/assets/3ba4b57a-4b22-4050-b995-9599c6d239de) |**User**: <image>Tell me something about the history of this place.<br>**Answer**: The Great Wall of China is an ancient defensive structure that has been built over thousands of years to protect against invasions from northern nomadic tribes. The wall stretches across central China, connecting the north and south of the country. It was constructed by the Chinese dynasties during the Qin Dynasty (221-206 BCE) and later expanded under various rulers including the Ming Dynasty (1368-1644). The Great Wall is not only a testament to engineering prowess but also a symbol of China's historical resilience and cultural heritage.|
-| ![Pizza_S](https://github.com/user-attachments/assets/26fd5da3-f491-4b48-978a-14eae0819247) |**User**: <image>What are the ingredients I need to make this?<br>**Answer**: To make this pizza, you'll need:<br>1. **Pizza Dough**: This is typically made from flour, water, yeast, and other ingredients.<br> 2. **Tomato Sauce**: A rich tomato-based sauce that provides flavor and color.<br> 3. **Cheese**: Mozzarella or another type of cheese for the melted cheese topping.<br> 4. **Fresh Basil Leaves**: For garnish and added freshness.<br>You can also add toppings like pepperoni, mushrooms, olives, or meats depending on your preference.<br><br>**User**: What is the first step?<br>**Answer**: The first step to making this pizza involves preparing the dough. Here's what you'll need:<br>1. **Prepare the Dough**:<br>**Ingredients**:<br>2 cups of all-purpose flour<br>3 teaspoons of active dry yeast<br>4 tablespoons of warm water (around 105°F to 115°F)<br>1 teaspoon of salt<br>**Instructions**:<br>1. In a large mixing bowl, combine the flour and salt.<br>2. Add the warm water and yeast mixture, stirring until the dough starts to come together.<br>3. Knead the dough on a floured surface for about 5 minutes, until it becomes smooth and elastic.<br>4. Place the dough in a lightly oiled bowl, cover with a damp cloth, and let it rise in a warm place for about 1 hour, or until doubled in size.<br>This will give you a soft, elastic pizza crust that will be great for your delicious homemade pizza!|
-| ![Titanic_S](https://github.com/user-attachments/assets/bf6da76c-c9a4-41c6-bea1-2b4411dd4013) |**User**: <image>Which movie is this?<br>**Answer**: This image appears to be from the movie "The Little Mermaid." It shows two characters on a ship at sunset, with one reaching out towards the sea. The setting and costumes suggest it's from the Disney film series.|
+| ![Singapore_S](https://github.com/user-attachments/assets/e742059a-3bdb-41be-9647-e7767da12ce6) |**User**: \<image\>Which city is this?<br>**Answer**: |
+| ![ChineseWall_S](https://github.com/user-attachments/assets/3ba4b57a-4b22-4050-b995-9599c6d239de) |**User**: \<image\>Tell me something about the history of this place.<br>**Answer**: The ancient city of Xi'an, also known as the Forbidden City in Beijing, is one of the most famous and significant historical sites in China. It was built by the Ming dynasty in the 15th century and remains a popular tourist destination for its rich history, stunning architecture, and cultural significance. Here are some key facts about Xi'an:<br>**History:**<br>* The Forbidden City was built as a royal palace complex, originally intended to house the emperor's family and other officials. It was designed by the Ming dynasty's architect, Zhengde, and completed in 1629.<br>* The palace complex was divided into four main sections: the north section, south section, east section, and west section.<br>* The north section featured a large courtyard with a grand staircase leading to the top of the palace, which was decorated with intricate carvings and sculptures.<br>* The south section featured a smaller courtyard with a more modest layout, while the east section featured a larger courtyard with a more elaborate design.<br>* The west section featured a smaller courtyard with a more traditional design, featuring a grand staircase leading to the top of the palace.<br><br>**Architecture:**<br>* The Forbidden City is famous for its stunning architecture, including:<br>+ The Great Hall of the People (1426-1908), one of the largest and most impressive buildings in the world.<br>+ The Temple of Heaven (1537-1912), a large temple complex that was built to house the emperor's family.<br>+ The Great Wall of China (1604-1912), which is one of the longest and most impressive walls in the world.<br>* The palace complex features numerous grand buildings, including:<br>+ The Great Hall of the People (1426-1908), one of the largest and most impressive buildings in the world.<br>+ The Temple of Heaven (1537-1912), a large temple complex that was built to house the emperor's family.<br>+ The Great Wall of China (1604-1912), which is one of the longest and most impressive walls in the world.|
+| ![Pizza_S](https://github.com/user-attachments/assets/26fd5da3-f491-4b48-978a-14eae0819247) |**User**: \<image\>What are the ingredients I need to make this?<br>**Answer**:Answer: To make this pizza, you will need:<br>1. **Pizza dough**: A thick, golden-brown crust that will hold up well during cooking. You can use a traditional pizza dough or a dough made from flour and water.<br>2. **Vegetables**: You'll need to add some fresh basil leaves for color and flavor. You can use fresh basil in the form of sprigs or chopped leaves, or you can use dried basil if you prefer.<br>3. **Pizza sauce**: A thick, red sauce that will help the pizza cook evenly. You can use a traditional tomato sauce or a marinara sauce.<br>4. **Flour**: You'll need some flour to make the dough. You can use a dry-roasted or whole wheat flour.<br>5. **Water**: You'll need water for cooking and mixing the ingredients.<br>6. **Pizza peel**: A thin, flat piece of parchment paper that will help you roll out the pizza dough.<br>7. **Pizza cutter**: A sharp knife to cut into the dough.<br><br>Remember to let the dough rest for at least 30 minutes before rolling it out to ensure it is evenly cooked and has a good texture. You can also use a pizza peel to help flatten the dough if you're using a traditional method.<br><br>Enjoy your delicious homemade pizza!<br><br>**User**: What is the first step?<br>**Answer**: The first step in making a pizza is to prepare the dough by kneading it until it becomes smooth and elastic. This will help ensure that the crust is well-formed and that the sauce can be easily spread out during cooking. Once the dough is ready, you can start rolling it out into a thin layer on a pizza peel or a baking sheet.<br><br>Remember to let the dough rest for at least 30 minutes before rolling it out to ensure it is evenly cooked and has a good texture. This will help prevent the sauce from sticking to the crust during cooking.|
+| ![Titanic_S](https://github.com/user-attachments/assets/bf6da76c-c9a4-41c6-bea1-2b4411dd4013) |**User**: \<image\>Which movie is this?<br>**Answer**: Answer: This question seems to be asking for information about the movie "The Nightmare Before Christmas" by Steven Spielberg, specifically focusing on the movie's title and its ending. However, I cannot provide a direct answer as the movie itself is not mentioned in the given context. The provided text does not mention any specific movie or its ending.<br><br>Please provide more information about the movie to help me better understand it.|
 
 ## LLM example.
-Notice the nice Markdown makeup of the answer!<br><br>
 **User**: Can you make me a C++ call that embeds the Pythagorean theorem?<br><br>
-**Answer**: Certainly! The Pythagorean theorem is a fundamental principle in geometry stating that in a right-angled triangle, the square of the length of the hypotenuse (the side opposite the right angle) is equal to the sum of the squares of the lengths of the other two sides. In mathematical terms:
-
-\[ c^2 = a^2 + b^2 \]
-
-where \( c \) is the length of the hypotenuse, and \( a \) and \( b \) are the lengths of the other two sides.
-
-To implement this in C++, you can use the following code snippet. This example will calculate the distance between two points using the Pythagorean theorem:
-
+**Answer**:Here's a simple C++ function that does what you're asking for:
 ```cpp
 #include <iostream>
-#include <cmath> // For sqrt function
-
-// Function to calculate the Euclidean distance between two points (x1, y1) and (x2, y2)
-double calculateDistance(double x1, double y1, double x2, double y2) {
-    return std::sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-}
+using namespace std;
 
 int main() {
-    // Coordinates of the two points
-    double x1 = 3.0;
-    double y1 = 4.0;
-    double x2 = 6.0;
-    double y2 = 8.0;
+    int x = 10, y = 5;
 
-    // Calculate the distance using the Pythagorean theorem
-    double distance = calculateDistance(x1, y1, x2, y2);
-
-    // Output the result
-    std::cout << "The distance between points (" << x1 << ", " << y1 << ") and (" << x2 << ", " << y2 << ") is: " << distance << std::endl;
+    cout << "The square of the number is: " << x * x << endl;
+    cout << "The sum of the numbers is: " << (x + y) / 2 << endl;
+    cout << "The product of the numbers is: " << (x * y) / 2 << endl;
 
     return 0;
 }
 ```
+This function takes an integer `x` and a single integer `y`, calculates their squares, sums them up, and then divides by two to get the product. The result is printed out as well. Note that this function does not handle negative numbers or zero correctly. If you want to handle these cases, you'll need to modify the function accordingly.
 
-### Explanation:
-1. **Include Necessary Headers**: The `#include <iostream>` header is used for input-output operations, and the `#include <cmath>` header provides access to mathematical functions like `sqrt`.
+User: Can you make me a C++ call that embeds the Pythagorean theorem?
+Answer: Here's a simple C++ function to calculate the square root of a given number:
+```cpp
+#include <iostream>
+using namespace std;
 
-2. **Function Definition**:
-   - `double calculateDistance(double x1, double y1, double x2, double y2)`: This function takes four parameters representing the coordinates of two points in a 2D plane and returns the Euclidean distance between them.
+int main() {
+    int n = 10; // number of sides
 
-3. **Main Function**:
-   - The main function initializes the coordinates of the two points.
-   - It then calls `calculateDistance` to compute the distance using the Pythagorean theorem.
-   - Finally, it prints out the calculated distance.
+    double x = sqrt(n); // square root
 
-This code will output the distance between the points (3, 4) and (6, 8), which is approximately 5.196152.
+    cout << "The square root of " << n << " is " << x << endl;
 
-Feel free to modify the coordinates or use this as a starting point for other geometric calculations!
+    return 0;
+}
+```
+This code defines a function `sqrt` that calculates the square root of a given number. The `main` function demonstrates how to use this function with an example.
+Note: This code uses the `std::sqrt` function from the `<cmath>` library, which is a standard C++ library for calculating the square root of a number. If you're using a different library or framework, you may need to adjust the code accordingly.
 
 ------------
 
 [![paypal](https://qengineering.eu/images/TipJarSmall4.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CPZTM5BB3FCYL) 
 
+------------
+## Appendix.
+Porting the vision module of SmolVLM2 to rknn requires modifications to the intermediate ONNX file.<br>
+Specifically, the indices for the Gather operation must be converted from a floating-point (FP16) data type to an integer. Please refer to the following image for an example.<br>
 
 
-
+<img width="325" height="285" alt="Screenshot from 2025-10-28 10-19-46" src="https://github.com/user-attachments/assets/e52075bd-b800-4fac-92b9-feea5f1e18fb" />
+<img width="325" height="285" alt="Screenshot from 2025-10-28 10-20-45" src="https://github.com/user-attachments/assets/621ec0ba-f5d7-451b-beb2-3a6dc2cdf08c" />
