@@ -92,7 +92,7 @@ $ sudo cp ./*.h /usr/local/include
 ### Download the LLM and VLM model.
 The next step is downloading the models.<br>
 Download the two files (700 MB) from our Sync.com server:<br>
-[smolvlm2-2.2b-instruct_w8a8_rk3588.rkllm](https://ln5.sync.com/dl/2ac529d30#49g27fih-qe8mjmu9-prmas7px-uuyua5te) and [smolvlm2-2.2b_vision_fp16_rk3588.rknn](https://ln5.sync.com/dl/b565d2360#wmbmdbum-tk36pehc-5t4irskd-7gb6kfti)<br>
+[smolvlm2-256m-video-instruct_w8a8_rk3588.rkllm](https://ln5.sync.com/dl/9af47c990#nhnm5iny-v4d7b8nz-5dfu3jcm-4cjsvnwi) and [smolvlm2_256m_vision_fp16_rk3588.rknn](https://ln5.sync.com/dl/3fa069520#ii5uprqg-na2e48sp-zs6t4qn2-dbyva2ae)<br>
 Copy both to your `./model` folder.
 
 ### Building the app.
@@ -131,7 +131,7 @@ This specifies the maximum total number of tokens the model can process in one g
 
 A typical command line can be:
 ```bash
-VLM_NPU ./Moon.jpg ./models/SmolVLM2-2B-1b_vision_fp16_rk3588.rknn ./models/SmolVLM2-2B-1b_w8a8_rk3588.rkllm 2048 4096
+VLM_NPU ./Moon.jpg ./models/smolvlm2_256m_vision_fp16_rk3588.rknn ./models/smolvlm2-256m-video-instruct_w8a8_rk3588.rkllm 2048 4096
 ```
 The NewTokens (2048) and ContextLength (4096) are optional and can be omitted.
 ### Using the app.
