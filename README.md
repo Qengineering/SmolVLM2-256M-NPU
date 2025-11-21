@@ -38,8 +38,9 @@ All LLM models are quantized to **w8a8**, while the VLM vision encoders use **fp
 
 | model         | RAM (GB)<sup>1</sup> | llm cold sec<sup>2</sup> | llm warm sec<sup>3</sup> | vlm cold sec<sup>2</sup> | vlm warm sec<sup>3</sup> | Resolution | Tokens/s |
 | --------------| :--: | :-----: | :-----: | :--------: | :-----: | :--------:  | :--------: |
-| [Qwen2](https://github.com/Qengineering/Qwen2-NPU)         | 3.3 | 29.1 |   2.5 | 17.1  | 1.7 | 392 x 392 | 12.5 |
-| [InternVL3-1B](https://github.com/Qengineering/InternVL3-NPU)  | 1.3 |  6.8 |   1.1 | 7.8    | 0.75 | 448 x 448 | 30 |
+| [Qwen2-7B](https://github.com/Qengineering/Qwen2-7B-NPU) | 8.7 | 86.6 |   34.5 | 37.1  | 20.7 | 392 x 392 | 3.7 |
+| [Qwen2-2.2B](https://github.com/Qengineering/Qwen2-2B-NPU) | 3.3 | 29.1 |   2.5 | 17.1  | 1.7 | 392 x 392 | 12.5 |
+| [InternVL3-1B](https://github.com/Qengineering/InternVL3-NPU) | 1.3 |  6.8 |   1.1 | 7.8    | 0.75 | 448 x 448 | 30 |
 | [SmolVLM2-2.2B](https://github.com/Qengineering/SmolVLM2-2B-NPU) | 3.4 | 21.2 |   2.6 | 10.5   | 0.9  | 384 x 384 | 11 |
 | [SmolVLM2-500M](https://github.com/Qengineering/SmolVLM2-500M-NPU) | 0.8 |  4.8 |   0.7 | 2.5    | 0.25 | 384 x 384 | 31 |
 | [SmolVLM2-256M](https://github.com/Qengineering/SmolVLM2-256M-NPU) | 0.5 |  1.1 |   0.4 | 2.5    | 0.25 | 384 x 384 | 54 |
@@ -48,7 +49,7 @@ All LLM models are quantized to **w8a8**, while the VLM vision encoders use **fp
 <sup>2</sup> When an llm/vlm model is loaded for the first time from your disk to RAM or NPU, it is called a cold start.<br>
 The duration depends on your OS, I/O transfer rate, and memory mapping.<br> 
 <sup>3</sup> Subsequent loading (warm start) takes advantage of the already mapped data in RAM. Mostly, only a few pointers need to be restored.<br><br>
-<img width="600" height="450" alt="Figure_1" src="https://github.com/user-attachments/assets/1c25935a-742d-4930-854a-230ecb6543b7" /><br>
+<img width="600" height="450" alt="Figure_1" src="https://github.com/user-attachments/assets/fac39e85-3f6c-422a-82bc-3d7e4c62cf17" />
 
 ------------
 
@@ -91,7 +92,7 @@ $ sudo cp ./*.h /usr/local/include
 ```
 ### Download the LLM and VLM model.
 The next step is downloading the models.<br>
-Download the two files (700 MB) from our Sync.com server:<br>
+Download the two files (400 MB) from our Sync.com server:<br>
 [smolvlm2-256m-video-instruct_w8a8_rk3588.rkllm](https://ln5.sync.com/dl/9af47c990#nhnm5iny-v4d7b8nz-5dfu3jcm-4cjsvnwi) and [smolvlm2_256m_vision_fp16_rk3588.rknn](https://ln5.sync.com/dl/3fa069520#ii5uprqg-na2e48sp-zs6t4qn2-dbyva2ae)<br>
 Copy both to your `./model` folder.
 
