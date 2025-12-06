@@ -172,15 +172,12 @@ int RK35llm::InitImgEnc(const char* model_path)
         DumpTensorAttr(&(output_attrs[i]));
     }
     // Set to context
-    if(output_attrs[0].dims[0]>1 && output_attrs[0].dims[2]==0){
-        //llm library < 1.2.2
-        rknn_app_ctx.model_image_token = output_attrs[0].dims[0];
-        rknn_app_ctx.model_embed_size = output_attrs[0].dims[1];
-    }
-    else{
-        //llm library >= 1.2.2
-        rknn_app_ctx.model_image_token = output_attrs[0].dims[1];
-        rknn_app_ctx.model_embed_size = output_attrs[0].dims[2];
+    for (int i = 0; i < 4; i++) {
+        if (output_attrs[0].dims[i] > 1) {
+            rknn_app_ctx.model_image_token = output_attrs[0].dims[i];
+            rknn_app_ctx.model_embed_size = output_attrs[0].dims[i + 1];
+            break;
+        }
     }
     rknn_app_ctx.rknn_ctx = ctx;
     rknn_app_ctx.io_num = io_num;
@@ -204,7 +201,7 @@ int RK35llm::InitImgEnc(const char* model_path)
         rknn_app_ctx.model_height, rknn_app_ctx.model_width, rknn_app_ctx.model_channel);
 
     if(ImgVec!=nullptr) delete[] ImgVec;
-    ImgVec = new float[rknn_app_ctx.model_image_token * rknn_app_ctx.model_embed_size];
+    ImgVec = new float[rknn_app_ctx.model_image_token * rknn_app_ctx.model_embed_size * rknn_app_ctx.io_num.n_output];
 
     return 0;
 }
@@ -213,7 +210,7 @@ int RK35llm::RunImgEnc(void)
 {
     int ret = 0;
     rknn_input inputs[1];
-    rknn_output outputs[1];
+    rknn_output outputs[rknn_app_ctx.io_num.n_output];
 
     memset(inputs, 0, sizeof(inputs));
     memset(outputs, 0, sizeof(outputs));
@@ -239,15 +236,26 @@ int RK35llm::RunImgEnc(void)
     }
 
     // Get Output
-    outputs[0].want_float = 1;
-    ret = rknn_outputs_get(rknn_app_ctx.rknn_ctx, 1, outputs, NULL);
+    for (uint32_t j=0; j<rknn_app_ctx.io_num.n_output; j++) {
+        outputs[j].want_float = 1;
+    }
+    ret = rknn_outputs_get(rknn_app_ctx.rknn_ctx, rknn_app_ctx.io_num.n_output, outputs, NULL);
     if (ret < 0) {
         printf("rknn_outputs_get fail! ret=%d\n", ret);
         return ret;
     }
 
     // Post Process
-    memcpy(ImgVec, outputs[0].buf, outputs[0].size);
+    if(rknn_app_ctx.io_num.n_output == 1) memcpy(ImgVec, outputs[0].buf, outputs[0].size);
+    else {
+        // concat deepstacks and input_embed
+        for(int i=0; i<rknn_app_ctx.model_image_token; i++){
+            for (uint32_t j = 0; j < rknn_app_ctx.io_num.n_output; j++) {
+                memcpy(ImgVec + i * rknn_app_ctx.io_num.n_output * rknn_app_ctx.model_embed_size + j * rknn_app_ctx.model_embed_size,
+                      (float*)(outputs[j].buf) + i * rknn_app_ctx.model_embed_size, sizeof(float) * rknn_app_ctx.model_embed_size);
+            }
+        }
+    }
 
     // Remeber to release rknn output
     rknn_outputs_release(rknn_app_ctx.rknn_ctx, 1, outputs);

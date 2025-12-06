@@ -122,7 +122,7 @@ typedef struct {
 } RKLLMTokenInput;
 
 /**
- * @struct RKLLMMultiModelInput
+ * @struct RKLLMMultiModalInput
  * @brief Represents multimodal input (e.g., text and image).
  */
 typedef struct {
@@ -132,7 +132,7 @@ typedef struct {
     size_t n_image;         /**< Number of image. */
     size_t image_width;     /**< Width of image. */
     size_t image_height;    /**< Height of image. */
-} RKLLMMultiModelInput;
+} RKLLMMultiModalInput;
 
 /**
  * @struct RKLLMInput
@@ -146,7 +146,7 @@ typedef struct {
         const char* prompt_input;               /**< Text prompt input if input_type is RKLLM_INPUT_PROMPT. */
         RKLLMEmbedInput embed_input;            /**< Embedding input if input_type is RKLLM_INPUT_EMBED. */
         RKLLMTokenInput token_input;            /**< Token input if input_type is RKLLM_INPUT_TOKEN. */
-        RKLLMMultiModelInput multimodal_input;  /**< Multimodal input if input_type is RKLLM_INPUT_MULTIMODAL. */
+        RKLLMMultiModalInput multimodal_input;  /**< Multimodal input if input_type is RKLLM_INPUT_MULTIMODAL. */
     };
 } RKLLMInput;
 
