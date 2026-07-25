@@ -38,6 +38,10 @@ All LLM models are quantized to **w8a8**, while the VLM vision encoders use **fp
 
 | model         | RAM (GB)<sup>1</sup> | llm cold sec<sup>2</sup> | llm warm sec<sup>3</sup> | vlm cold sec<sup>2</sup> | vlm warm sec<sup>3</sup> | Resolution | Tokens/s |
 | --------------| :--: | :-----: | :-----: | :--------: | :-----: | :--------:  | :--------: |
+| [Qwen3.5-9B](https://github.com/Qengineering/Qwen3.5-9B-NPU) | 9.2 | 97.1 | 97.1 | 11.5  | 11.5 | 448 x 448 | 3.2 |
+| [Qwen3.5-4B](https://github.com/Qengineering/Qwen3.5-4B-NPU) | 5.4 | 52.8 | 6.2 | 8.5  | 0.9 | 448 x 448 | 5.2 |
+| [Qwen3.5-2B](https://github.com/Qengineering/Qwen3.5-2B-NPU) | 2.9 | 23.9 | 3.2 | 8.5  | 0.8 | 448 x 448 | 11.0 |
+| [Qwen3.5-0.8B](https://github.com/Qengineering/Qwen3.5-0.8B-NPU) | 1.3 | 10.6 | 1.9 | 2.7  | 0.2 | 448 x 448 | 21.6 |
 | [Qwen3-2B](https://github.com/Qengineering/Qwen3-VL-2B-NPU) | 3.1 | 21.9 | 2.6 | 10.0  | 0.9 | 448 x 448 | 11.5 |
 | [Qwen3-4B](https://github.com/Qengineering/Qwen3-VL-4B-NPU) | 8.7 | 49.6 | 5.6 | 10.6  | 1.1 | 448 x 448 | 5.7 |
 | [InternVL3.5-1B](https://github.com/Qengineering/InternVL3.5-1B-NPU) | 1.9 |  8.3 |   8.0 | 1.5    | 0.8 | 448 x 448 | 24 |
@@ -56,8 +60,8 @@ All LLM models are quantized to **w8a8**, while the VLM vision encoders use **fp
 <sup>2</sup> When an llm/vlm model is loaded for the first time from your disk to RAM or NPU, it is called a cold start.<br>
 The duration depends on your OS, I/O transfer rate, and memory mapping.<br> 
 <sup>3</sup> Subsequent loading (warm start) takes advantage of the already mapped data in RAM. Mostly, only a few pointers need to be restored.<br><br>
-<img width="600" height="450" alt="Plot_1" src="https://github.com/user-attachments/assets/2dde8d27-c8ae-474c-b845-4ed52bdc0785" /><br>
-<img width="600" height="450" alt="Plot_2" src="https://github.com/user-attachments/assets/0cf946d5-5458-4166-bc2b-fa1592ae4d6b" />
+<img width="1000" height="700" alt="Plot_Tokens" src="https://github.com/user-attachments/assets/7342debe-769c-46c9-8a83-755caf7d67dc" /><br>
+<img width="1000" height="700" alt="PlotMemory" src="https://github.com/user-attachments/assets/cf4362e6-f644-46d3-9b74-d129b23d3c44" />
 
 ------------
 
@@ -89,19 +93,24 @@ $ git clone https://github.com/Qengineering/SmolVLM2-256M-NPU.git
 ```
 
 #### RKLLM, RKNN
-To run SmolVLM2-500M, you need to have the **rkllm-runtime** library version **1.2.2** (or higher) installed, as well as the **rknpu driver** version **0.9.8**.<br>
-If you don't have these on your machine, or if you have a lower version, you need to install them.<br>
+To run SmolVLM2-500M, you need to have the **rkllm-runtime** library version **1.2.3** installed, as well as the **rknpu driver** version **0.9.8**.<br>
+If you don't have these on your machine, or if you have a higher version, you need to install them.<br>
 We have provided the correct versions in the repo.<br>
 ```bash
-$ cd ./SmolVLM2-256M-NPU/aarch64/library
+$ cd ./Qwen3-VL-2B-NPU/aarch64/library
 $ sudo cp ./*.so /usr/local/lib
-$ cd ./SmolVLM2-256M-NPU/aarch64/include
+$ cd ../include
 $ sudo cp ./*.h /usr/local/include
 ```
+
+Your rkllm model must match the library.<br><br>
+<img width="818" height="219" alt="RK_OK2" src="https://github.com/user-attachments/assets/cabb346b-a9fa-4c4f-9b3e-1ff785ce45fd" /><br><br>
+If you use a model synthesized with the previous 1.2.3 rkllm library and run it with the latest 1.3.0, you will get a malfunction. The internal Byte-Pair Encoding (BPE) dictionary parsing gets misaligned.<br><br>
+<img width="817" height="219" alt="RK_ERROR2" src="https://github.com/user-attachments/assets/bc9fad2a-8a1f-44f9-ab04-f834bb243f4c" />
+<br>
 ### Download the LLM and VLM model.
 The next step is downloading the models.<br>
-Download the two files (400 MB) from our Sync.com server:<br>
-[smolvlm2-256m-video-instruct_w8a8_rk3588.rkllm](https://ln5.sync.com/dl/9af47c990#nhnm5iny-v4d7b8nz-5dfu3jcm-4cjsvnwi) and [smolvlm2_256m_vision_fp16_rk3588.rknn](https://ln5.sync.com/dl/3fa069520#ii5uprqg-na2e48sp-zs6t4qn2-dbyva2ae)<br>
+Download the two files (400 MB) from our [Hugging Face repo](https://huggingface.co/Qengineering/SmolVLM2-256m-rk3588)<br>
 Copy both to your `./model` folder.
 
 ### Building the app.
